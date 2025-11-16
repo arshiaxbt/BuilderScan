@@ -2,25 +2,115 @@ import 'dotenv/config';
 import { ethers } from 'ethers';
 import { Database } from '../lib/database.js';
 
-// ERC-8021 parsing placeholder. Replace with exact schema 0 parsing when confirmed.
-function extractBuilderCodeFromCalldata(data: string): string | null {
-	// Heuristic: 8021 suffix commonly appended as ascii tag '|8021:' + code at end.
-	// This is a placeholder and should be replaced with canonical parsing.
+/**
+ * ERC-8021 Attribution Parser
+ * 
+ * Parses transaction calldata to extract builder codes according to ERC-8021 spec.
+ * 
+ * Suffix format (parsed backwards from end):
+ * {txData}{schemaData}{schemaId}{ercSuffix}
+ * 
+ * - ercSuffix: 16 bytes = 0x80218021802180218021802180218021 (repeated "8021")
+ * - schemaId: 1 byte (0 = canonical registry, 1 = custom registry)
+ * - schemaData: variable bytes depending on schemaId
+ * 
+ * Schema 0 (canonical registry):
+ *   {codesLength}{codes}
+ *   - codesLength: 1 byte
+ *   - codes: ASCII string, comma-delimited (0x2C), no commas in codes
+ * 
+ * Schema 1 (custom registry):
+ *   {codesLength}{codes}{codeRegistryChainIdLength}{codeRegistryChainId}{codeRegistryAddress}
+ *   - Same as Schema 0, plus:
+ *   - codeRegistryChainIdLength: 1 byte
+ *   - codeRegistryChainId: variable bytes
+ *   - codeRegistryAddress: 20 bytes
+ */
+const ERC_SUFFIX = '0x80218021802180218021802180218021'; // 16 bytes
+const ERC_SUFFIX_BYTES = ethers.getBytes(ERC_SUFFIX);
+
+function extractBuilderCodesFromCalldata(data: string): string[] {
 	try {
-		if (!data || data === '0x') return null;
-		// Try to decode tail as UTF-8 and find 8021 marker
+		if (!data || data === '0x' || data.length < 66) return []; // Need at least ercSuffix (32 hex chars = 16 bytes)
+		
 		const bytes = ethers.getBytes(data);
-		const utf8 = new TextDecoder().decode(bytes);
-		const marker = '|8021:';
-		const idx = utf8.lastIndexOf(marker);
-		if (idx >= 0) {
-			const code = utf8.slice(idx + marker.length).trim();
-			if (code && code.length <= 64) return code;
+		if (bytes.length < 17) return []; // Need at least ercSuffix (16 bytes) + schemaId (1 byte)
+		
+		// Check ercSuffix (last 16 bytes)
+		const suffixStart = bytes.length - 16;
+		const suffix = bytes.slice(suffixStart);
+		if (!suffix.every((b, i) => b === ERC_SUFFIX_BYTES[i])) {
+			return []; // Not an ERC-8021 transaction
 		}
-		return null;
+		
+		// Extract schemaId (byte before suffix)
+		const schemaId = bytes[suffixStart - 1];
+		
+		// Parse based on schemaId
+		if (schemaId === 0) {
+			// Schema 0: canonical registry
+			return parseSchema0(bytes, suffixStart - 2);
+		} else if (schemaId === 1) {
+			// Schema 1: custom registry (we'll extract codes but use canonical registry for now)
+			return parseSchema1(bytes, suffixStart - 2);
+		}
+		
+		// Unknown schemaId - parsing stops per spec
+		return [];
 	} catch {
-		return null;
+		return [];
 	}
+}
+
+function parseSchema0(bytes: Uint8Array, pos: number): string[] {
+	if (pos < 0) return [];
+	
+	// Extract codesLength
+	const codesLength = bytes[pos];
+	if (codesLength === 0 || pos < codesLength) return [];
+	
+	// Extract codes
+	const codesStart = pos - codesLength;
+	const codesBytes = bytes.slice(codesStart, pos);
+	const codesStr = new TextDecoder('ascii').decode(codesBytes);
+	
+	// Split by comma (0x2C)
+	return codesStr.split(',').filter(code => code.length > 0);
+}
+
+function parseSchema1(bytes: Uint8Array, pos: number): string[] {
+	if (pos < 0) return [];
+	
+	// Extract codeRegistryAddress (20 bytes before current pos)
+	if (pos < 20) return [];
+	const registryAddressPos = pos - 20;
+	
+	// Extract codeRegistryChainIdLength (1 byte before address)
+	if (registryAddressPos < 1) return [];
+	const chainIdLength = bytes[registryAddressPos - 1];
+	
+	// Extract codeRegistryChainId (variable bytes)
+	if (registryAddressPos - 1 < chainIdLength) return [];
+	const chainIdStart = registryAddressPos - 1 - chainIdLength;
+	
+	// Extract codesLength (1 byte before chainId)
+	if (chainIdStart < 1) return [];
+	const codesLength = bytes[chainIdStart - 1];
+	
+	// Extract codes
+	if (chainIdStart - 1 < codesLength) return [];
+	const codesStart = chainIdStart - 1 - codesLength;
+	const codesBytes = bytes.slice(codesStart, chainIdStart - 1);
+	const codesStr = new TextDecoder('ascii').decode(codesBytes);
+	
+	// Split by comma (0x2C)
+	return codesStr.split(',').filter(code => code.length > 0);
+}
+
+// Legacy function name for compatibility
+function extractBuilderCodeFromCalldata(data: string): string | null {
+	const codes = extractBuilderCodesFromCalldata(data);
+	return codes.length > 0 ? codes[0] : null; // Return first code for backward compatibility
 }
 
 async function main() {
@@ -46,21 +136,28 @@ async function main() {
 		for (const block of blocks) {
 			if (!block?.transactions) continue;
 			for (const tx of block.transactions as any[]) {
-				const code = extractBuilderCodeFromCalldata(tx.input as string);
-				if (!code) continue;
+				// Extract all codes from transaction (ERC-8021 supports multiple attributions)
+				const codes = extractBuilderCodesFromCalldata(tx.input as string);
+				if (codes.length === 0) continue;
+				
 				const valueEth = ethers.formatEther(tx.value ?? 0n);
 				// naive fee estimate: 0.05% of value, fallback to 0
+				// Note: ERC-8021 spec doesn't define fee calculation, this is illustrative
 				const feeEstimateEth =
 					tx.value && tx.value > 0n
 						? (Number(valueEth) * 0.0005).toString()
 						: '0';
-				db.insertAttribution({
-					txHash: tx.hash,
-					code,
-					timestamp: Number(block.timestamp),
-					valueEth,
-					feeEstimateEth
-				});
+				
+				// Attribute transaction to all codes found
+				for (const code of codes) {
+					db.insertAttribution({
+						txHash: tx.hash,
+						code,
+						timestamp: Number(block.timestamp),
+						valueEth,
+						feeEstimateEth
+					});
+				}
 			}
 		}
 		console.log(`Scanned blocks ${start}-${end}`);

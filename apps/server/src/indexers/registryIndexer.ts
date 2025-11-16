@@ -2,13 +2,35 @@ import 'dotenv/config';
 import { ethers } from 'ethers';
 import { Database } from '../lib/database.js';
 
-// Placeholder ABI and address. Replace when canonical registry ABI/address is confirmed.
+/**
+ * ERC-8021 Code Registry Indexer
+ * 
+ * REGISTRY_ADDRESS: The address of the ICodeRegistry contract on Base (Chain ID 8453)
+ * 
+ * According to ERC-8021 spec:
+ * - Chain ID 8453 (Base mainnet): TBD (To Be Determined)
+ * - Chain ID 84532 (Base Sepolia testnet): TBD
+ * 
+ * The registry implements ICodeRegistry interface:
+ * - payoutAddress(string code) returns (address) - where rewards are sent
+ * - codeURI(string code) returns (string) - metadata URI
+ * - isValidCode(string code) returns (bool) - format validation
+ * - isRegistered(string code) returns (bool) - registration check
+ * 
+ * Note: The spec doesn't define events, so this indexer assumes events exist
+ * for code registration/updates. When the canonical registry is deployed,
+ * update this ABI to match the actual contract interface.
+ */
 const REGISTRY_ADDRESS = process.env.REGISTRY_ADDRESS as string;
 const REGISTRY_ABI = [
-	// event Registered(string indexed code, address indexed owner, string metadataURI, string appUrl)
-	'event Registered(string indexed code, address indexed owner, string metadataURI, string appUrl)',
-	// event Updated(string indexed code, address indexed owner, string metadataURI, string appUrl)
-	'event Updated(string indexed code, address indexed owner, string metadataURI, string appUrl)'
+	// ICodeRegistry interface (view functions)
+	'function payoutAddress(string memory code) external view returns (address)',
+	'function codeURI(string memory code) external view returns (string)',
+	'function isValidCode(string memory code) external view returns (bool)',
+	'function isRegistered(string memory code) external view returns (bool)',
+	// Assumed events (update when canonical registry is deployed)
+	'event Registered(string indexed code, address indexed owner)',
+	'event Updated(string indexed code, address indexed owner)'
 ];
 
 async function main() {

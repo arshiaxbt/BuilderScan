@@ -21,7 +21,16 @@ DATABASE_PATH=builderscan.db
 PORT=4000
 ```
 
-Set `REGISTRY_ADDRESS` to the canonical ERC-8021 Schema 0 registry address (TBD).
+Set `REGISTRY_ADDRESS` to the canonical ERC-8021 Code Registry address on Base.
+According to ERC-8021 spec:
+- Chain ID 8453 (Base mainnet): **TBD** (To Be Determined)
+- Chain ID 84532 (Base Sepolia testnet): **TBD**
+
+The registry implements `ICodeRegistry` interface with:
+- `payoutAddress(string code)` - address to receive rewards
+- `codeURI(string code)` - metadata URI
+- `isValidCode(string code)` - format validation
+- `isRegistered(string code)` - registration check
 
 3. **Run development server**
 
