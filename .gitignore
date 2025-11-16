@@ -1,19 +1,39 @@
+# Dependencies
 node_modules
-.DS_Store
+package-lock.json
+
+# Environment
 .env
 .env.local
 .env.production
 .env.development
-*.log
+
+# Build outputs
 dist
 build
-.vercel
-apps/server/.env
-builderscan.db*
-*.db-shm
-*.db-wal
-apps/web/dist
-.cursor-server
-.npm
 *.tsbuildinfo
 
+# Database
+*.db
+*.db-shm
+*.db-wal
+builderscan.db*
+
+# Logs
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
+
+# Server env
+apps/server/.env
