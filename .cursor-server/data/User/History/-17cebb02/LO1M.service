@@ -1,0 +1,24 @@
+[Unit]
+Description=Valshi-X - Kalshi Whale Trade Detector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/valshi-x
+ExecStart=/usr/bin/python3 /root/valshi-x/bot.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Logging
+SyslogIdentifier=valshi-x
+
+# Security
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+

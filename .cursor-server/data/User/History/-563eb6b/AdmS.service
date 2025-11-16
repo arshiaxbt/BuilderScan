@@ -1,0 +1,17 @@
+[Unit]
+Description=Valshi-X WebSocket - Kalshi Whale Trade Detector (WebSocket Mode)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/valshi-x
+ExecStart=/usr/bin/python3 -u /root/valshi-x/bot_websocket.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

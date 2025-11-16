@@ -1,0 +1,6 @@
+{
+    "security.workspace.trust.untrustedFiles": "open",
+    "remote.SSH.remotePlatform": {
+        "ssh root@77.110.114.220 -p 22": "linux"
+    }
+}

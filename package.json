@@ -1,0 +1,17 @@
+{
+  "name": "builderscan",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run -w apps/server build && npm run -w apps/web build",
+    "dev": "concurrently -k -n server,web -c blue,green \"npm:dev --workspace apps/server\" \"npm:dev --workspace apps/web\"",
+    "start": "npm run -w apps/server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
+

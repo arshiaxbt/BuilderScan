@@ -1,0 +1,22 @@
+[Unit]
+Description=Christmas Claim Bot (Ultra-Fast FCFS)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/itsbot
+ExecStart=/usr/bin/python3 /root/itsbot/main_fast.py --offset 0
+Restart=always
+RestartSec=10
+StandardOutput=append:/root/itsbot/systemd_output.log
+StandardError=append:/root/itsbot/systemd_error.log
+
+# Performance optimizations
+Nice=-10
+IOSchedulingClass=realtime
+IOSchedulingPriority=0
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,1 @@
+{"name":"cursor-agent-exec","description":"Minimal extension","publisher":"anysphere","version":"0.0.1","engines":{"vscode":"^1.43.0"},"main":"./dist/main","activationEvents":["*"],"enabledApiProposals":["control","cursor","cursorTracing"],"contributes":{}}

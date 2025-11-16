@@ -1,0 +1,69 @@
+╔══════════════════════════════════════════════════════════════╗
+║           CHRISTMAS BOT - QUICK REFERENCE CARD               ║
+╚══════════════════════════════════════════════════════════════╝
+
+📊 CHECK STATUS
+   /root/itsbot/manage.sh status
+
+📋 VIEW LIVE LOGS  
+   /root/itsbot/manage.sh logs
+   (Press Ctrl+C to exit)
+
+🎯 VIEW CLAIMS
+   /root/itsbot/manage.sh claims
+
+📈 VIEW STATISTICS
+   /root/itsbot/manage.sh stats
+
+🔄 RESTART BOT
+   /root/itsbot/manage.sh restart
+
+🛑 STOP BOT
+   /root/itsbot/manage.sh stop
+
+🚀 START BOT
+   /root/itsbot/manage.sh start
+
+═══════════════════════════════════════════════════════════════
+
+📁 LOG FILES
+   Systemd output:  /root/itsbot/systemd_output.log
+   Systemd errors:  /root/itsbot/systemd_error.log
+   Claim logs:      /root/itsbot/advent_log_fast_0.txt
+
+═══════════════════════════════════════════════════════════════
+
+⚙️ SYSTEMD COMMANDS
+   systemctl status christmas-bot.service
+   systemctl restart christmas-bot.service
+   systemctl stop christmas-bot.service
+   systemctl start christmas-bot.service
+   journalctl -u christmas-bot.service -f
+
+═══════════════════════════════════════════════════════════════
+
+🎯 CURRENT CONFIG
+   Service:      christmas-bot.service
+   Version:      Ultra-Fast (main_fast.py)
+   Offset:       0
+   Wallets:      4 configured
+   Auto-start:   ✅ ENABLED
+   Auto-restart: ✅ ENABLED
+   Status:       🟢 RUNNING
+
+═══════════════════════════════════════════════════════════════
+
+📚 DOCUMENTATION
+   Full systemd guide:     /root/itsbot/SYSTEMD.md
+   Optimization details:   /root/itsbot/OPTIMIZATIONS.md
+   Quick start guide:      /root/itsbot/START.md
+
+═══════════════════════════════════════════════════════════════
+
+🔥 BOT TIMING (Each Hour)
+   XX:59:50  →  Warms connections
+   XX:59:58  →  Starts burst (10 concurrent requests)
+   XX:00:10  →  Ends burst window
+
+═══════════════════════════════════════════════════════════════
+

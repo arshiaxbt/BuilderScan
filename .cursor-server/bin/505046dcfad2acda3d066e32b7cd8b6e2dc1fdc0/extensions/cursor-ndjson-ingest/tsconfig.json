@@ -1,0 +1,1 @@
+{"extends":"../tsconfig.base.json","compilerOptions":{"outDir":"./out","types":["node"],"esModuleInterop":true,"rootDir":"./src"},"include":["../../src/vscode-dts/vscode.d.ts"]}
