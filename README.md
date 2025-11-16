@@ -2,20 +2,19 @@
 
 Live explorer + leaderboard for ERC-8021 builder codes on Base.
 
-### Quick start
+### 🚀 Quick Start
 
-1) Install
-
+1. **Install dependencies**
 ```bash
 npm i
 ```
 
-2) Configure environment (server)
+2. **Configure environment (server)**
 
 Create a `.env` file in `apps/server`:
 
 ```bash
-BASE_RPC_URL=https://mainnet.base.org
+BASE_RPC_URL=https://base.llamarpc.com
 START_BLOCK=17000000
 REGISTRY_ADDRESS=0x0000000000000000000000000000000000000000
 DATABASE_PATH=builderscan.db
@@ -24,13 +23,21 @@ PORT=4000
 
 Set `REGISTRY_ADDRESS` to the canonical ERC-8021 Schema 0 registry address (TBD).
 
-3) Run dev (API + Web)
+3. **Run development server**
 
 ```bash
 npm run dev
 ```
 
-4) Index data
+This starts both the API server (port 4000) and web app (Vite dev server).
+
+4. **Seed demo data (optional)**
+
+```bash
+npm -w apps/server run seed
+```
+
+5. **Index data (production)**
 
 In a separate terminal, run:
 
@@ -39,15 +46,49 @@ npm -w apps/server run index:registry
 npm -w apps/server run index:attrib
 ```
 
-### How it uses ERC-8021
+### 📦 Deployment
 
-- Reads Schema 0 canonical registry to map `code → owner + metadata + appUrl` (replace ABI/address accordingly).
-- Parses transaction suffixes to attribute volume to codes (placeholder parser in `attributionIndexer.ts`; replace with canonical parser).
-- Leaderboard “Open” buttons append our builder code to the target app URL for monetized jumps inside Base Mini Apps.
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for complete deployment instructions:
+- Deploy frontend on Vercel
+- Deploy backend on Render/Railway
+- Submit as Base Mini App
+- Create Farcaster Frame
 
-### Notes
+### 🎯 Features
 
-- The attribution parser is a heuristic; replace with the official ERC-8021 Schema 0 decoding once confirmed.
-- Fee estimates are illustrative (0.05% of value). Update with the correct formula if specified by the standard.
+- **Live Leaderboard**: Top builder codes ranked by volume and transactions
+- **On-chain Interactions**: Like and donate ETH to favorite builders
+- **Wallet Integration**: Connect Base or Farcaster wallet
+- **Direct App Links**: Open apps with builder code attribution
+- **Base Mini App**: Optimized for Base app experience
+- **Farcaster Frame**: Interactive Frame support
+
+### 🔗 How it uses ERC-8021
+
+- Reads Schema 0 canonical registry to map `code → owner + metadata + appUrl`
+- Parses transaction suffixes to attribute volume to codes
+- Leaderboard "Open" buttons append our builder code (`builderscan`) to target app URLs for monetized traffic
+- All outbound links include ERC-8021 attribution
+
+### 📝 Notes
+
+- The attribution parser is a heuristic; replace with the official ERC-8021 Schema 0 decoding once confirmed
+- Fee estimates are illustrative (0.05% of value). Update with the correct formula if specified by the standard
+- For production, use a higher-capacity RPC (Alchemy/Infura/QuickNode) instead of the public RPC
+
+### 🛠️ Tech Stack
+
+- **Frontend**: React + Vite + TypeScript
+- **Backend**: Express + SQLite + TypeScript
+- **Blockchain**: Ethers.js, Base Chain (ID 8453)
+- **Deployment**: Vercel (frontend), Render/Railway (backend)
+
+### 📄 License
+
+MIT
+
+### 👤 Built by
+
+[arshiags.eth](https://farcaster.xyz/arshiags) | [X](https://x.com/ArshiaXBT) | [GitHub](https://github.com/arshiaxbt/BuilderScan)
 
 
