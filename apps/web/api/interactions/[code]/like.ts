@@ -46,8 +46,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
-		// Get code from URL path parameter (Vercel dynamic route)
-		const code = (req.query.code as string) || (req.url?.split('/').filter(Boolean).pop());
+		// Get code from Vercel dynamic route [code]
+		// The code is in req.query.code for /api/interactions/[code]/like
+		const code = req.query.code as string;
 		if (!code) {
 			return res.status(400).json({ error: 'Code parameter required' });
 		}
