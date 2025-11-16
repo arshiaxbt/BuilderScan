@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && npm install && npm run build",
-  "outputDirectory": "apps/web/dist",
-  "installCommand": "cd apps/web && npm install",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
   "framework": null,
+  "rootDirectory": "apps/web",
   "env": {
     "VITE_BUILDER_CODE": "builderscan"
   },
