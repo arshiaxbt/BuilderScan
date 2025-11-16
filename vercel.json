@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm ci && npm run -w apps/web build",
+  "buildCommand": "npm install && npm run build --workspace=apps/web",
   "outputDirectory": "apps/web/dist",
-  "installCommand": "npm ci",
+  "installCommand": "npm install",
   "framework": null,
   "env": {
     "VITE_BUILDER_CODE": "builderscan"
