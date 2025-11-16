@@ -9,6 +9,16 @@ export default defineConfig({
 				changeOrigin: true
 			}
 		}
+	},
+	build: {
+		target: 'esnext',
+		minify: 'esbuild',
+		chunkSizeWarningLimit: 1000,
+		rollupOptions: {
+			output: {
+				manualChunks: undefined // Single bundle for Base Mini App optimization
+			}
+		}
 	}
 });
 

@@ -1,29 +1,17 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "apps/web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "apps/web/dist"
-      }
-    }
-  ],
+  "buildCommand": "npm ci && npm run -w apps/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "npm ci",
+  "framework": null,
   "env": {
     "VITE_BUILDER_CODE": "builderscan"
   },
-  "build": {
-    "env": {}
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/apps/web/$1"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "framework": null,
-  "installCommand": "npm ci",
-  "buildCommand": "npm run -w apps/web build",
-  "outputDirectory": "apps/web/dist"
+  ]
 }
 

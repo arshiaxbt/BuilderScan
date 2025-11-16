@@ -2,9 +2,57 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>BuilderScan</title>
-		<meta name="theme-color" content="#0f172a" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+		<title>BuilderScan — ERC-8021 Builder Code Leaderboard on Base</title>
+		<meta name="theme-color" content="#000000" />
+		<meta name="description" content="Live explorer and leaderboard for ERC-8021 builder codes on Base. Track top builders, donate, and like your favorites." />
+		
+		<!-- Favicons -->
+		<link rel="icon" type="image/png" href="/logo.png" />
+		<link rel="apple-touch-icon" href="/logo-with-bg.png" />
+		
+		<!-- Open Graph / Facebook / Farcaster -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://builderscan.vercel.app/" />
+		<meta property="og:title" content="BuilderScan — ERC-8021 Builder Code Leaderboard" />
+		<meta property="og:description" content="Live explorer and leaderboard for ERC-8021 builder codes on Base. Track top builders, donate, and like your favorites." />
+		<meta property="og:image" content="https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW" />
+		
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:url" content="https://builderscan.vercel.app/" />
+		<meta name="twitter:title" content="BuilderScan — ERC-8021 Builder Code Leaderboard" />
+		<meta name="twitter:description" content="Live explorer and leaderboard for ERC-8021 builder codes on Base." />
+		<meta name="twitter:image" content="https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW" />
+		
+		<!-- Farcaster Frame -->
+		<meta name="fc:frame" content="vNext" />
+		<meta name="fc:frame:image" content="https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW" />
+		<meta name="fc:frame:button:1" content="Open BuilderScan" />
+		<meta name="fc:frame:button:1:action" content="link" />
+		<meta name="fc:frame:button:1:target" content="https://builderscan.vercel.app/" />
+		
+		<!-- Base Mini App -->
+		<meta name="base:mini-app:icon" content="https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW" />
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			html, body {
+				margin: 0;
+				padding: 0;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+				overscroll-behavior: none;
+				-webkit-overflow-scrolling: touch;
+			}
+			/* Base Mini App safe areas */
+			@supports (padding: env(safe-area-inset-top)) {
+				body {
+					padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+				}
+			}
+		</style>
 	</head>
 	<body>
 		<div id="root"></div>

@@ -70,6 +70,19 @@ export class Database {
       `
 			)
 			.run();
+
+		this.driver
+			.prepare(
+				`
+        CREATE TABLE IF NOT EXISTS code_likes (
+          code TEXT PRIMARY KEY,
+          likes INTEGER NOT NULL DEFAULT 0,
+          updated_at INTEGER NOT NULL,
+          FOREIGN KEY (code) REFERENCES builder_codes(code) ON DELETE CASCADE
+        );
+      `
+			)
+			.run();
 	}
 
 	upsertBuilderCode(input: Omit<BuilderCode, 'createdAt' | 'updatedAt'>): void {
@@ -130,14 +143,17 @@ export class Database {
 		feeEstimateEth: string;
 		appUrl: string | null;
 		ownerAddress: string;
+		likes?: number;
 	}> {
 		const rows = this.driver
 			.prepare(
 				`
         SELECT s.code, s.tx_count as txCount, s.volume_eth as volumeEth, s.fee_estimate_eth as feeEstimateEth,
-               c.app_url as appUrl, c.owner_address as ownerAddress
+               c.app_url as appUrl, c.owner_address as ownerAddress,
+               COALESCE(l.likes, 0) as likes
         FROM code_stats s
         JOIN builder_codes c ON c.code = s.code
+        LEFT JOIN code_likes l ON l.code = s.code
         ORDER BY s.fee_estimate_eth + 0.0 DESC, s.volume_eth + 0.0 DESC
         LIMIT ?
       `
@@ -153,6 +169,30 @@ export class Database {
 			)
 			.get(code);
 		return row as any;
+	}
+
+	incrementLike(code: string, delta: number): number {
+		const now = Date.now();
+		// Ensure a row exists
+		this.driver
+			.prepare(
+				`INSERT OR IGNORE INTO code_likes (code, likes, updated_at) VALUES (?, 0, ?)`
+			)
+			.run(code, now);
+		this.driver
+			.prepare(`UPDATE code_likes SET likes = MAX(0, likes + ?), updated_at = ? WHERE code = ?`)
+			.run(delta, now, code);
+		const row = this.driver
+			.prepare(`SELECT likes FROM code_likes WHERE code = ?`)
+			.get(code) as { likes: number } | undefined;
+		return row?.likes ?? 0;
+	}
+
+	getLikes(code: string): number {
+		const row = this.driver
+			.prepare(`SELECT likes FROM code_likes WHERE code = ?`)
+			.get(code) as { likes: number } | undefined;
+		return row?.likes ?? 0;
 	}
 }
 

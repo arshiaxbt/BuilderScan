@@ -9,7 +9,11 @@ dist
 build
 .vercel
 apps/server/.env
-apps/server/builderscan.db
-apps/server/*.db
+builderscan.db*
+*.db-shm
+*.db-wal
 apps/web/dist
+.cursor-server
+.npm
+*.tsbuildinfo
 

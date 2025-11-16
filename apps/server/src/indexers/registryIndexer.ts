@@ -31,8 +31,8 @@ async function main() {
 		registry.queryFilter(filterUpdated, fromBlock, current)
 	]);
 
-	for (const log of registeredLogs) {
-		const { code, owner, metadataURI, appUrl } = (log.args ?? {}) as any;
+	for (const log of registeredLogs as ethers.EventLog[]) {
+		const { code, owner, metadataURI, appUrl } = (log.args as any) ?? {};
 		db.upsertBuilderCode({
 			code,
 			ownerAddress: owner,
@@ -41,8 +41,8 @@ async function main() {
 		});
 	}
 
-	for (const log of updatedLogs) {
-		const { code, owner, metadataURI, appUrl } = (log.args ?? {}) as any;
+	for (const log of updatedLogs as ethers.EventLog[]) {
+		const { code, owner, metadataURI, appUrl } = (log.args as any) ?? {};
 		db.upsertBuilderCode({
 			code,
 			ownerAddress: owner,
