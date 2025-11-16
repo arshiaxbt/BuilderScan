@@ -82,47 +82,12 @@ function formatEth(value: string | number): string {
 	return num.toFixed(6);
 }
 
-// Demo data fallback when API is not available
-const DEMO_DATA: LeaderItem[] = [
-	{
-		code: 'builderscan',
-		txCount: 1234,
-		volumeEth: '45.67',
-		feeEstimateEth: '0.023',
-		appUrl: null,
-		ownerAddress: '0xcd0b67a61E5e8F4616c19e421e929813B6D947df',
-		likes: 42
-	},
-	{
-		code: 'uniswap',
-		txCount: 5678,
-		volumeEth: '123.45',
-		feeEstimateEth: '0.062',
-		appUrl: 'https://app.uniswap.org',
-		ownerAddress: '0x1234567890123456789012345678901234567890',
-		likes: 128
-	},
-	{
-		code: 'aave',
-		txCount: 3456,
-		volumeEth: '89.12',
-		feeEstimateEth: '0.045',
-		appUrl: 'https://app.aave.com',
-		ownerAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
-		likes: 87
-	}
-];
-
 export const App: React.FC = () => {
 	const { data, error, isLoading } = useSWR<{ items: LeaderItem[] }>('/api/leaderboard', fetcher, {
 		refreshInterval: 15_000,
-		revalidateOnFocus: true,
-		onError: () => {
-			// Silently fall back to demo data
-		}
+		revalidateOnFocus: true
 	});
-	// Use demo data if API fails or returns empty
-	const items = (data?.items && data.items.length > 0) ? data.items : (error ? DEMO_DATA : []);
+	const items = data?.items ?? [];
 	const ourBuilderCode = (import.meta as any).env?.VITE_BUILDER_CODE ?? 'builderscan';
 	const [account, setAccount] = React.useState<string | null>(null);
 	const [loading, setLoading] = React.useState<string | null>(null);
@@ -174,7 +139,7 @@ export const App: React.FC = () => {
 				method: 'eth_sendTransaction',
 				params: [tx]
 			});
-			// Optimistically update UI
+			// Update backend
 			await fetch(`/api/interactions/${code}/like`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
