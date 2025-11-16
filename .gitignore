@@ -27,6 +27,8 @@ builderscan.db*
 .idea
 *.swp
 *.swo
+.cursor-server
+.cursor
 
 # OS
 .DS_Store
