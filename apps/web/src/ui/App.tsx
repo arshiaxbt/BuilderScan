@@ -1,6 +1,55 @@
 import React from 'react';
 import useSWR from 'swr';
 
+/**
+ * Generate ERC-8021 data suffix according to the specification
+ * Format: {codes}{codesLength}{schemaId}{ercSuffix}
+ * - codes: ASCII string, comma-delimited
+ * - codesLength: 1 byte (length of codes string)
+ * - schemaId: 1 byte (0 = canonical registry)
+ * - ercSuffix: 16 bytes = 0x80218021802180218021802180218021
+ */
+function generateERC8021DataSuffix(codes: string[]): string {
+	const codesStr = codes.join(',');
+	const codesBytes = new TextEncoder().encode(codesStr);
+	const codesLength = codesBytes.length;
+	
+	if (codesLength > 255) {
+		throw new Error('Codes string too long (max 255 bytes)');
+	}
+	
+	// ERC-8021 suffix: 16 bytes of 0x80218021802180218021802180218021
+	const ercSuffix = new Uint8Array([
+		0x80, 0x21, 0x80, 0x21, 0x80, 0x21, 0x80, 0x21,
+		0x80, 0x21, 0x80, 0x21, 0x80, 0x21, 0x80, 0x21
+	]);
+	
+	// Schema 0 (canonical registry)
+	const schemaId = 0;
+	
+	// Build the suffix: codes + codesLength + schemaId + ercSuffix
+	const suffix = new Uint8Array(codesLength + 1 + 1 + 16);
+	let offset = 0;
+	
+	// codes
+	suffix.set(codesBytes, offset);
+	offset += codesLength;
+	
+	// codesLength
+	suffix[offset] = codesLength;
+	offset += 1;
+	
+	// schemaId
+	suffix[offset] = schemaId;
+	offset += 1;
+	
+	// ercSuffix
+	suffix.set(ercSuffix, offset);
+	
+	// Convert to hex string
+	return '0x' + Array.from(suffix).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 type LeaderItem = {
 	code: string;
 	txCount: number;
@@ -128,17 +177,48 @@ export const App: React.FC = () => {
 		try {
 			setLoading(`like-${code}`);
 			await ensureBaseChain();
-			const suffix = `|LIKE:${code}|8021:${ourBuilderCode}`;
-			const data = `0x${Buffer.from(suffix, 'utf8').toString('hex')}`;
-			const tx = {
-				to: ownerAddress,
-				value: '0x0',
-				data
-			};
-			const txHash = await window.ethereum.request({
-				method: 'eth_sendTransaction',
-				params: [tx]
-			});
+			
+			// Generate ERC-8021 data suffix
+			const dataSuffix = generateERC8021DataSuffix([ourBuilderCode]);
+			
+			// Use wallet_sendCalls (ERC-5792) with dataSuffix capability
+			// This works for both EOA and Smart Account (ERC-4337) users
+			let txHash: string;
+			try {
+				// Try wallet_sendCalls first (recommended)
+				const result = await window.ethereum.request({
+					method: 'wallet_sendCalls',
+					params: [{
+						calls: [{
+							to: ownerAddress,
+							value: '0x0',
+							data: '0x' // Empty data for like transaction
+						}],
+						capabilities: {
+							dataSuffix: dataSuffix
+						}
+					}]
+				});
+				txHash = result as string;
+			} catch (sendCallsError: any) {
+				// Fallback to legacy eth_sendTransaction if wallet_sendCalls is not supported
+				if (sendCallsError?.code === -32601 || sendCallsError?.message?.includes('not supported')) {
+					// Legacy approach: manually append suffix
+					const data = '0x' + dataSuffix.slice(2);
+					const tx = {
+						to: ownerAddress,
+						value: '0x0',
+						data
+					};
+					txHash = await window.ethereum.request({
+						method: 'eth_sendTransaction',
+						params: [tx]
+					});
+				} else {
+					throw sendCallsError;
+				}
+			}
+			
 			// Update backend
 			await fetch(`/api/interactions/${code}/like`, {
 				method: 'POST',
@@ -176,18 +256,52 @@ export const App: React.FC = () => {
 		try {
 			setLoading(`donate-${ownerAddress}`);
 			await ensureBaseChain();
-			const valueWei = BigInt(Math.floor(amount * 1e6)) * 10n**12n;
-			const suffix = `|8021:${ourBuilderCode}`;
-			const data = `0x${Buffer.from(suffix, 'utf8').toString('hex')}`;
-			const tx = {
-				to: ownerAddress,
-				value: '0x' + valueWei.toString(16),
-				data
-			};
-			const txHash = await window.ethereum.request({
-				method: 'eth_sendTransaction',
-				params: [tx]
-			});
+			
+			// Convert ETH to Wei (18 decimals)
+			// Use proper conversion: 1 ETH = 10^18 Wei
+			const valueWei = BigInt(Math.floor(amount * 1e18));
+			
+			// Generate ERC-8021 data suffix
+			const dataSuffix = generateERC8021DataSuffix([ourBuilderCode]);
+			
+			// Use wallet_sendCalls (ERC-5792) with dataSuffix capability
+			// This works for both EOA and Smart Account (ERC-4337) users
+			let txHash: string;
+			try {
+				// Try wallet_sendCalls first (recommended)
+				const result = await window.ethereum.request({
+					method: 'wallet_sendCalls',
+					params: [{
+						calls: [{
+							to: ownerAddress,
+							value: '0x' + valueWei.toString(16),
+							data: '0x' // Empty data, suffix will be appended by wallet
+						}],
+						capabilities: {
+							dataSuffix: dataSuffix
+						}
+					}]
+				});
+				txHash = result as string;
+			} catch (sendCallsError: any) {
+				// Fallback to legacy eth_sendTransaction if wallet_sendCalls is not supported
+				if (sendCallsError?.code === -32601 || sendCallsError?.message?.includes('not supported')) {
+					// Legacy approach: manually append suffix
+					const data = '0x' + dataSuffix.slice(2);
+					const tx = {
+						to: ownerAddress,
+						value: '0x' + valueWei.toString(16),
+						data
+					};
+					txHash = await window.ethereum.request({
+						method: 'eth_sendTransaction',
+						params: [tx]
+					});
+				} else {
+					throw sendCallsError;
+				}
+			}
+			
 			alert(`Donation sent!\nAmount: ${amountEth} ETH\nTx Hash: ${txHash}`);
 		} catch (err: any) {
 			console.error('Donate tx error:', err);

@@ -8,7 +8,7 @@ async function main() {
 	// Ensure our builder code maps to user's rewards address
 	db.upsertBuilderCode({
 		code: process.env.OUR_BUILDER_CODE ?? 'builderscan',
-		ownerAddress: '0xcd0b67a61E5e8F4616c19e421e929813B6D947df',
+		ownerAddress: '0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5',
 		appUrl: 'https://builderscan.example',
 		metadataJson: JSON.stringify({ name: 'BuilderScan', description: 'Leaderboard mini app' })
 	});
