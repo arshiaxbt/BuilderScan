@@ -134,6 +134,7 @@ export const handler: Handler = async (event, context) => {
 			const elapsed = Date.now() - startTime;
 			if (elapsed > 25000) { // 25 seconds
 				console.log(`Approaching timeout at ${elapsed}ms, stopping early at block ${blockNum}`);
+				console.log(`Total scanned: ${scannedCount}, attributions: ${attributionCount}`);
 				break;
 			}
 			try {
