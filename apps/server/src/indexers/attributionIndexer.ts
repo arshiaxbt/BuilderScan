@@ -76,7 +76,7 @@ function parseSchema0(bytes: Uint8Array, pos: number): string[] {
 	
 	// Split by comma (0x2C)
 	return codesStr.split(',').filter(code => code.length > 0);
-}
+	}
 
 function parseSchema1(bytes: Uint8Array, pos: number): string[] {
 	if (pos < 0) return [];
@@ -150,13 +150,13 @@ async function main() {
 				
 				// Attribute transaction to all codes found
 				for (const code of codes) {
-					db.insertAttribution({
-						txHash: tx.hash,
-						code,
-						timestamp: Number(block.timestamp),
-						valueEth,
-						feeEstimateEth
-					});
+				db.insertAttribution({
+					txHash: tx.hash,
+					code,
+					timestamp: Number(block.timestamp),
+					valueEth,
+					feeEstimateEth
+				});
 				}
 			}
 		}

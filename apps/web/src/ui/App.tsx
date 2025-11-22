@@ -206,15 +206,15 @@ export const App: React.FC = () => {
 				if (sendCallsError?.code === -32601 || sendCallsError?.message?.includes('not supported')) {
 					// Legacy approach: manually append suffix
 					const data = '0x' + dataSuffix.slice(2);
-					const tx = {
-						to: ownerAddress,
-						value: '0x0',
-						data
-					};
+			const tx = {
+				to: ownerAddress,
+				value: '0x0',
+				data
+			};
 					txHash = await window.ethereum.request({
-						method: 'eth_sendTransaction',
-						params: [tx]
-					});
+				method: 'eth_sendTransaction',
+				params: [tx]
+			});
 				} else {
 					throw sendCallsError;
 				}
@@ -289,15 +289,15 @@ export const App: React.FC = () => {
 				if (sendCallsError?.code === -32601 || sendCallsError?.message?.includes('not supported')) {
 					// Legacy approach: manually append suffix
 					const data = '0x' + dataSuffix.slice(2);
-					const tx = {
-						to: ownerAddress,
-						value: '0x' + valueWei.toString(16),
-						data
-					};
+			const tx = {
+				to: ownerAddress,
+				value: '0x' + valueWei.toString(16),
+				data
+			};
 					txHash = await window.ethereum.request({
-						method: 'eth_sendTransaction',
-						params: [tx]
-					});
+				method: 'eth_sendTransaction',
+				params: [tx]
+			});
 				} else {
 					throw sendCallsError;
 				}

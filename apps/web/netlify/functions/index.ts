@@ -1,6 +1,6 @@
 import type { Handler } from '@netlify/functions';
-import DatabaseDriver from 'better-sqlite3';
 import { ethers } from 'ethers';
+import { JSONDatabase } from './db-json.js';
 
 /**
  * ERC-8021 Attribution Parser
@@ -61,65 +61,6 @@ function parseSchema1(bytes: Uint8Array, pos: number): string[] {
 	return codesStr.split(',').filter(code => code.length > 0);
 }
 
-function getDatabase() {
-	const dbPath = '/tmp/builderscan.db';
-	const db = new DatabaseDriver(dbPath);
-	db.pragma('journal_mode = WAL');
-	
-	// Initialize schema
-	db.prepare(`
-		CREATE TABLE IF NOT EXISTS builder_codes (
-			code TEXT PRIMARY KEY,
-			owner_address TEXT NOT NULL,
-			app_url TEXT,
-			metadata_json TEXT,
-			created_at INTEGER NOT NULL,
-			updated_at INTEGER NOT NULL
-		)
-	`).run();
-	
-	db.prepare(`
-		CREATE TABLE IF NOT EXISTS code_stats (
-			code TEXT PRIMARY KEY,
-			tx_count INTEGER NOT NULL,
-			volume_eth TEXT NOT NULL,
-			fee_estimate_eth TEXT NOT NULL,
-			updated_at INTEGER NOT NULL,
-			FOREIGN KEY (code) REFERENCES builder_codes(code) ON DELETE CASCADE
-		)
-	`).run();
-	
-	db.prepare(`
-		CREATE TABLE IF NOT EXISTS tx_attributions (
-			tx_hash TEXT PRIMARY KEY,
-			code TEXT NOT NULL,
-			timestamp INTEGER NOT NULL,
-			value_eth TEXT NOT NULL,
-			fee_estimate_eth TEXT NOT NULL,
-			FOREIGN KEY (code) REFERENCES builder_codes(code) ON DELETE CASCADE
-		)
-	`).run();
-	
-	db.prepare(`
-		CREATE TABLE IF NOT EXISTS code_likes (
-			code TEXT PRIMARY KEY,
-			likes INTEGER NOT NULL DEFAULT 0,
-			updated_at INTEGER NOT NULL,
-			FOREIGN KEY (code) REFERENCES builder_codes(code) ON DELETE CASCADE
-		)
-	`).run();
-	
-	// Track last scanned block
-	db.prepare(`
-		CREATE TABLE IF NOT EXISTS indexer_state (
-			key TEXT PRIMARY KEY,
-			value TEXT NOT NULL
-		)
-	`).run();
-	
-	return db;
-}
-
 /**
  * Attribution Indexer Serverless Function
  * Scans Base blockchain for ERC-8021 transactions
@@ -143,11 +84,11 @@ export const handler: Handler = async (event, context) => {
 	try {
 		const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 		const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
-		const db = getDatabase();
+		const db = new JSONDatabase();
 		
 		// Get last scanned block
-		const stateRow = db.prepare('SELECT value FROM indexer_state WHERE key = ?').get('last_block') as { value: string } | undefined;
-		const fromBlock = stateRow ? Number(stateRow.value) : 0;
+		const lastBlockStr = db.getState('last_block');
+		const fromBlock = lastBlockStr ? Number(lastBlockStr) : 0;
 		
 		const currentBlock = await provider.getBlockNumber();
 		
@@ -205,22 +146,17 @@ export const handler: Handler = async (event, context) => {
 					for (const code of codes) {
 						try {
 							// Auto-register code if not exists (with placeholder address)
-							db.prepare(`
-								INSERT OR IGNORE INTO builder_codes (code, owner_address, app_url, metadata_json, created_at, updated_at)
-								VALUES (?, ?, ?, ?, ?, ?)
-							`).run(
-								code,
-								'0x0000000000000000000000000000000000000000', // Placeholder until registered
-								null,
-								JSON.stringify({ name: code, description: 'Auto-discovered code' }),
-								Date.now(),
-								Date.now()
-							);
+							const existingCode = db.getBuilderCode(code);
+							if (!existingCode) {
+								db.upsertBuilderCode(
+									code,
+									'0x0000000000000000000000000000000000000000', // Placeholder until registered
+									null,
+									JSON.stringify({ name: code, description: 'Auto-discovered code' })
+								);
+							}
 							
-							db.prepare(`
-								INSERT OR IGNORE INTO tx_attributions (tx_hash, code, timestamp, value_eth, fee_estimate_eth)
-								VALUES (?, ?, ?, ?, ?)
-							`).run(
+							db.insertAttribution(
 								tx.hash,
 								code,
 								Number(block.timestamp),
@@ -241,32 +177,13 @@ export const handler: Handler = async (event, context) => {
 		}
 		
 		// Update last scanned block
-		db.prepare(`
-			INSERT OR REPLACE INTO indexer_state (key, value)
-			VALUES (?, ?)
-		`).run('last_block', endBlock.toString());
+		db.setState('last_block', endBlock.toString());
 		
 		// Aggregate stats
-		const statsRows = db.prepare(`
-			SELECT code, COUNT(*) as txCount, 
-				COALESCE(SUM(CAST(value_eth AS REAL)), 0) as volumeEth, 
-				COALESCE(SUM(CAST(fee_estimate_eth AS REAL)), 0) as feeEstimateEth 
-			FROM tx_attributions 
-			GROUP BY code
-		`).all() as Array<any>;
+		db.aggregateStats();
 		
-		for (const row of statsRows) {
-			db.prepare(`
-				INSERT OR REPLACE INTO code_stats (code, tx_count, volume_eth, fee_estimate_eth, updated_at)
-				VALUES (?, ?, ?, ?, ?)
-			`).run(
-				row.code,
-				Number(row.txCount),
-				String(row.volumeEth),
-				String(row.feeEstimateEth),
-				Date.now()
-			);
-		}
+		// Count stats for response
+		const statsCount = Object.keys(db.db.code_stats).length;
 		
 		return {
 			statusCode: 200,
@@ -281,7 +198,7 @@ export const handler: Handler = async (event, context) => {
 				fromBlock: startBlock,
 				toBlock: endBlock,
 				currentBlock,
-				statsUpdated: statsRows.length
+				statsUpdated: statsCount
 			})
 		};
 	} catch (error: any) {
@@ -299,4 +216,3 @@ export const handler: Handler = async (event, context) => {
 		};
 	}
 };
-
