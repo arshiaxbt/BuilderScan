@@ -14,6 +14,10 @@
   ],
   "rewrites": [
     {
+      "source": "/.well-known/farcaster.json",
+      "destination": "/api/.well-known/farcaster"
+    },
+    {
       "source": "/((?!api|.well-known).*)",
       "destination": "/index.html"
     }
