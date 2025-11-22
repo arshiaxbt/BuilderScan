@@ -26,8 +26,12 @@ export const handler: Handler = async (event, context) => {
 
 		// Convert 'frame' to 'miniapp' to match Farcaster docs
 		// Farcaster expects 'miniapp' property, not 'frame'
+		// Add baseBuilder for Base mini app integration
 		const correctedManifest = {
 			accountAssociation: hostedManifest.accountAssociation,
+			baseBuilder: {
+				ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
+			},
 			miniapp: hostedManifest.frame // Convert frame to miniapp
 		};
 
