@@ -154,6 +154,10 @@ export const App: React.FC = () => {
 	const [account, setAccount] = React.useState<string | null>(null);
 	const [loading, setLoading] = React.useState<string | null>(null);
 	const [indexing, setIndexing] = React.useState(false);
+	const [showOnboarding, setShowOnboarding] = React.useState(() => {
+		// Show onboarding only on first visit
+		return !localStorage.getItem('builderScanOnboarded');
+	});
 
 	// Call sdk.actions.ready() when app is loaded to dismiss splash screen
 	// Per Farcaster Mini App docs: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
@@ -170,6 +174,12 @@ export const App: React.FC = () => {
 
 		initializeSDK();
 	}, []);
+
+	// Handle onboarding completion
+	const handleOnboardingComplete = () => {
+		setShowOnboarding(false);
+		localStorage.setItem('builderScanOnboarded', 'true');
+	};
 
 	const connect = React.useCallback(async () => {
 		if (!window.ethereum) {
