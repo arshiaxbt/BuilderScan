@@ -10,7 +10,7 @@ export const handler: Handler = async (event, context) => {
 	const canonicalDomain = host.replace(/^https?:\/\//, '');
 	
 	// Base.dev manifest format per https://docs.base.org/mini-apps/core-concepts/manifest
-	// accountAssociation must be signed via Base Build Preview Tool at base.dev
+	// Field order matches Base.dev example: accountAssociation, baseBuilder, miniapp
 	const manifest: any = {
 		baseBuilder: {
 			ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
@@ -29,14 +29,23 @@ export const handler: Handler = async (event, context) => {
 	};
 	
 	// Add accountAssociation only if signed (via env var)
-	// Base.dev may reject empty strings, so only include if fully signed
+	// Base.dev rejects empty strings - only include if fully signed with non-empty values
 	const accountAssociation = process.env.ACCOUNT_ASSOCIATION;
 	if (accountAssociation) {
 		try {
 			const parsed = JSON.parse(accountAssociation);
 			if (parsed.header && parsed.payload && parsed.signature && 
 			    parsed.header.length > 0 && parsed.payload.length > 0 && parsed.signature.length > 0) {
+				// Insert at beginning to match Base.dev example order
 				manifest.accountAssociation = parsed;
+				// Reorder: accountAssociation first, then baseBuilder, then miniapp
+				const ordered = {
+					accountAssociation: parsed,
+					baseBuilder: manifest.baseBuilder,
+					miniapp: manifest.miniapp
+				};
+				Object.keys(manifest).forEach(key => delete manifest[key]);
+				Object.assign(manifest, ordered);
 			}
 		} catch {
 			// Invalid JSON, skip
