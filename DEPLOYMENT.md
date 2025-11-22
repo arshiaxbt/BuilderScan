@@ -103,11 +103,11 @@ The frontend needs the API server running. Deploy the server separately:
 
 After deploying the backend, update your frontend to point to it:
 
-1. In Vercel, go to your project → Settings → Environment Variables
+1. In Netlify, go to your site → Site settings → Environment variables
 2. Add: `VITE_API_URL` = `https://your-backend-url.com`
 3. Update `apps/web/src/main.tsx` or create a config file to use this URL for API calls
 
-**OR** use a proxy in `vercel.json`:
+**OR** configure in `netlify.toml`:
 
 ```json
 {
@@ -130,7 +130,7 @@ After deploying the backend, update your frontend to point to it:
 
 ### Prerequisites
 
-- Your app deployed on Vercel (e.g., `https://builderscan.vercel.app`)
+- Your app deployed on Netlify (e.g., `https://builderscan.netlify.app`)
 - Base Wallet or Base app installed
 
 ### Steps
@@ -146,9 +146,9 @@ After deploying the backend, update your frontend to point to it:
    - Look for the submission form or contact Base team
    - Provide:
      - **App Name**: BuilderScan
-     - **App URL**: `https://builderscan.vercel.app`
+     - **App URL**: `https://builderscan.netlify.app`
      - **Description**: Live explorer + leaderboard for ERC-8021 builder codes on Base
-     - **Icon**: Use your logo URL: `https://builderscan.vercel.app/logo.png`
+     - **Icon**: Use your logo URL: `https://builderscan.netlify.app/logo.png`
      - **Category**: Tools / Analytics
      - **Builder Code**: `builderscan`
 
@@ -174,7 +174,7 @@ After deploying the backend, update your frontend to point to it:
 
 ### Prerequisites
 
-- Your app deployed on Vercel
+- Your app deployed on Netlify
 - Farcaster account
 
 ### Steps
@@ -190,7 +190,7 @@ After deploying the backend, update your frontend to point to it:
 2. **Create a Farcaster Cast with Frame**:
    - Go to [Warpcast](https://warpcast.com) or your Farcaster client
    - Create a new cast
-   - Add the Frame URL: `https://builderscan.vercel.app`
+   - Add the Frame URL: `https://builderscan.netlify.app`
    - The Frame will render with your logo and "View Leaderboard" button
 
 3. **Frame Interaction Flow**:
@@ -211,7 +211,7 @@ After deploying the backend, update your frontend to point to it:
 
 1. **Use Frame Validator**:
    - Go to [Farcaster Frame Validator](https://warpcast.com/~/developers/frames)
-   - Enter your URL: `https://builderscan.vercel.app`
+   - Enter your URL: `https://builderscan.netlify.app`
    - Verify all meta tags are correct
 
 2. **Test in Warpcast**:
@@ -223,7 +223,7 @@ After deploying the backend, update your frontend to point to it:
 
 ## 🔧 Step 6: Environment Variables Summary
 
-### Frontend (Vercel)
+### Frontend (Netlify)
 ```
 VITE_BUILDER_CODE=builderscan
 VITE_API_URL=https://your-backend-url.com (optional, if using proxy)
@@ -243,7 +243,7 @@ NODE_ENV=production
 
 ## ✅ Verification Checklist
 
-- [ ] Frontend deployed on Vercel
+- [ ] Frontend deployed on Netlify
 - [ ] Backend deployed on Render/Railway
 - [ ] API endpoints accessible (test `/api/leaderboard`)
 - [ ] Frontend loads without errors
@@ -259,7 +259,7 @@ NODE_ENV=production
 ## 🐛 Troubleshooting
 
 ### Frontend shows "Cannot GET /"
-- Check `vercel.json` rewrites are correct
+- Check `netlify.toml` redirects are correct
 - Ensure `outputDirectory` is `apps/web/dist`
 - Verify build completed successfully
 
@@ -284,7 +284,7 @@ NODE_ENV=production
 
 - [Base Mini Apps Docs](https://docs.base.org/mini-apps/)
 - [Farcaster Frames Docs](https://docs.farcaster.xyz/reference/frames)
-- [Vercel Deployment Docs](https://vercel.com/docs)
+- [Netlify Deployment Docs](https://docs.netlify.com)
 - [Render Deployment Docs](https://render.com/docs)
 - [ERC-8021 Specification](https://eip.tools/eip/8021)
 
@@ -293,7 +293,7 @@ NODE_ENV=production
 ## 🎉 You're Done!
 
 Your BuilderScan app is now:
-- ✅ Live on Vercel
+- ✅ Live on Netlify
 - ✅ Accessible as Base Mini App
 - ✅ Available as Farcaster Frame
 - ✅ Ready for users to explore builder codes!
