@@ -22,7 +22,14 @@ export const handler: Handler = async (event, context) => {
 			};
 		}
 
-		const manifestData = await response.text();
+		const hostedManifest = await response.json();
+
+		// Convert 'frame' to 'miniapp' to match Farcaster docs
+		// Farcaster expects 'miniapp' property, not 'frame'
+		const correctedManifest = {
+			accountAssociation: hostedManifest.accountAssociation,
+			miniapp: hostedManifest.frame // Convert frame to miniapp
+		};
 
 		return {
 			statusCode: 200,
@@ -31,7 +38,7 @@ export const handler: Handler = async (event, context) => {
 				'Access-Control-Allow-Origin': '*',
 				'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
 			},
-			body: manifestData
+			body: JSON.stringify(correctedManifest)
 		};
 	} catch (error) {
 		console.error('Error fetching hosted manifest:', error);
