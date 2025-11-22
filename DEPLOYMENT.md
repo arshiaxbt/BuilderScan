@@ -182,9 +182,9 @@ After deploying the backend, update your frontend to point to it:
 1. **Verify Frame Meta Tags** (Already configured in `apps/web/index.html`):
    ```html
    <meta property="fc:frame" content="vNext" />
-   <meta property="fc:frame:image" content="https://builderscan.vercel.app/logo-with-bg.png" />
+   <meta property="fc:frame:image" content="https://builderscan.netlify.app/logo-with-bg.png" />
    <meta property="fc:frame:button:1" content="View Leaderboard" />
-   <meta property="fc:frame:post_url" content="https://builderscan.vercel.app" />
+   <meta property="fc:frame:post_url" content="https://builderscan.netlify.app" />
    ```
 
 2. **Create a Farcaster Cast with Frame**:
