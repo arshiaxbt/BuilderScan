@@ -729,7 +729,7 @@ export const App: React.FC = () => {
 							Built by
 						</div>
 						<div style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>
-							arshiags.eth
+							0xarshia.eth
 						</div>
 					</div>
 					<div style={{ 

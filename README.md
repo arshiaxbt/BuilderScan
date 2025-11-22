@@ -98,6 +98,6 @@ MIT
 
 ### 👤 Built by
 
-[arshiags.eth](https://farcaster.xyz/arshiags) | [X](https://x.com/ArshiaXBT) | [GitHub](https://github.com/arshiaxbt/BuilderScan)
+[0xarshia.eth](https://farcaster.xyz/0xarshia) | [X](https://x.com/ArshiaXBT) | [GitHub](https://github.com/arshiaxbt/BuilderScan)
 
 
