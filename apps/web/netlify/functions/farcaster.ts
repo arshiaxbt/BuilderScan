@@ -9,15 +9,16 @@ export const handler: Handler = async (event, context) => {
 	const appUrl = `https://${host}`;
 	const canonicalDomain = host.replace(/^https?:\/\//, '');
 	
-	// Base.dev manifest format - uses "frame" not "miniapp"
+	// Base.dev manifest format per https://docs.base.org/mini-apps/quickstart/create-new-miniapp
 	// accountAssociation must be signed via Base Build Preview Tool at base.dev
 	const manifest: any = {
 		baseBuilder: {
 			ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
 		},
-		frame: {
+		miniapp: {
 			version: "1",
 			name: "BuilderScan",
+			description: "ERC-8021 Builder Code Leaderboard on Base",
 			homeUrl: appUrl,
 			iconUrl: "https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW",
 			splashImageUrl: "https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW",
