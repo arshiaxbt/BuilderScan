@@ -10,8 +10,8 @@
 # Redirects and rewrites
 [[redirects]]
   from = "/.well-known/farcaster.json"
-  to = "/.netlify/functions/farcaster"
-  status = 200
+  to = "https://api.farcaster.xyz/miniapps/hosted-manifest/019aac77-a581-0edd-2956-e2ce7de88d60"
+  status = 307
 
 [[redirects]]
   from = "/api/interactions/:code/like"
