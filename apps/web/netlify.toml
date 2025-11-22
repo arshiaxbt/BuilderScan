@@ -1,7 +1,7 @@
 [build]
-  command = "npm install && npm run build"
-  publish = "dist"
-  functions = "netlify/functions"
+  command = "cd apps/web && npm install && npm run build"
+  publish = "apps/web/dist"
+  functions = "apps/web/netlify/functions"
 
 [build.environment]
   VITE_BUILDER_CODE = "builderscan"
