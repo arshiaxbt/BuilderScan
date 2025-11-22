@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "name": "BuilderScan",
+  "description": "ERC-8021 Builder Code Leaderboard on Base",
+  "iconUrl": "https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW",
+  "appUrl": "https://builderscan.vercel.app/",
+  "splashImageUrl": "https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW",
+  "splashBackgroundColor": "#000000"
+}
+

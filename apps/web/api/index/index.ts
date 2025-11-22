@@ -142,9 +142,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const stateRow = db.prepare('SELECT value FROM indexer_state WHERE key = ?').get('last_block') as { value: string } | undefined;
 		const fromBlock = stateRow ? Number(stateRow.value) : 0;
 		
-		// If starting fresh, start from a recent block (last 1000 blocks)
 		const currentBlock = await provider.getBlockNumber();
-		const startBlock = fromBlock === 0 ? Math.max(0, currentBlock - 1000) : fromBlock + 1;
+		
+		// If starting fresh, start from recent blocks (configurable via env)
+		// Default: 1 day ago (~43,200 blocks at 2s block time)
+		// Can be overridden with START_BLOCK env var
+		const START_BLOCK_ENV = process.env.START_BLOCK ? Number(process.env.START_BLOCK) : null;
+		const blocksPerDay = 43200; // Base has ~2s block time = 43,200 blocks/day
+		const daysBack = process.env.SCAN_DAYS_BACK ? Number(process.env.SCAN_DAYS_BACK) : 1; // Default: 1 day
+		
+		const startBlock = fromBlock === 0 
+			? (START_BLOCK_ENV ?? Math.max(0, currentBlock - (blocksPerDay * daysBack)))
+			: fromBlock + 1;
 		
 		if (startBlock > currentBlock) {
 			return res.json({ 
@@ -155,8 +164,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 		}
 		
-		// Scan blocks in batches (max 50 blocks per run to avoid timeout)
-		const maxBlocks = 50;
+		// Scan blocks in larger batches for faster indexing (2000 blocks per run)
+		// Vercel serverless functions have 10s timeout on free tier, 60s on pro
+		// 2000 blocks should complete in ~30-40s with efficient RPC
+		const maxBlocks = 2000;
 		const endBlock = Math.min(currentBlock, startBlock + maxBlocks - 1);
 		
 		let scannedCount = 0;
