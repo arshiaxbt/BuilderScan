@@ -9,12 +9,15 @@ export const handler: Handler = async (event, context) => {
 	const appUrl = `https://${host}`;
 	const canonicalDomain = host.replace(/^https?:\/\//, '');
 	
-	// Base.dev requires nested structure with miniapp object
+	// Base.dev manifest format
 	// accountAssociation must be signed via Base Build Preview Tool at base.dev
-	const manifest = {
+	const manifest: any = {
 		// accountAssociation will be added after signing via Base.dev Preview tool
 		// Visit: https://base.dev → Preview → Account Association
-		accountAssociation: null as any, // To be filled after signing
+		accountAssociation: null, // To be filled after signing
+		baseBuilder: {
+			ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
+		},
 		miniapp: {
 			version: "1",
 			name: "BuilderScan",
