@@ -96,7 +96,7 @@ export const handler: Handler = async (event, context) => {
 		// Default: 1 day ago (~43,200 blocks at 2s block time)
 		const START_BLOCK_ENV = process.env.START_BLOCK ? Number(process.env.START_BLOCK) : null;
 		const blocksPerDay = 43200; // Base has ~2s block time = 43,200 blocks/day
-			const daysBack = process.env.SCAN_DAYS_BACK ? Number(process.env.SCAN_DAYS_BACK) : 0.1; // 2.4 hours instead of 1 day // Default: 1 day
+			const daysBack = process.env.SCAN_DAYS_BACK ? Number(process.env.SCAN_DAYS_BACK) : 7; // 7 days for initial population // Default: 1 day
 		
 		const startBlock = fromBlock === 0 
 			? (START_BLOCK_ENV ?? Math.max(0, currentBlock - (blocksPerDay * daysBack)))
@@ -118,10 +118,10 @@ export const handler: Handler = async (event, context) => {
 			};
 		}
 		
-		// Scan blocks in larger batches for faster indexing (2000 blocks per run)
+		// Scan blocks in larger batches for faster indexing
 		// Netlify functions have 10s timeout on free tier, 26s on pro
-		// 2000 blocks should complete in ~30-40s with efficient RPC
-			const maxBlocks = 500;
+		// With 15min intervals, we can scan more blocks per run
+			const maxBlocks = 1000;
 		const endBlock = Math.min(currentBlock, startBlock + maxBlocks - 1);
 		
 		let scannedCount = 0;
