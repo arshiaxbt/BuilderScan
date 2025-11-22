@@ -82,6 +82,7 @@ export const handler: Handler = async (event, context) => {
 	}
 
 	try {
+		const startTime = Date.now();
 		const BASE_RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org';
 		const provider = new ethers.JsonRpcProvider(BASE_RPC_URL);
 		const db = new JSONDatabase();
@@ -118,10 +119,10 @@ export const handler: Handler = async (event, context) => {
 			};
 		}
 		
-		// Scan blocks in reasonable batches to avoid 30s timeout
-		// Netlify functions timeout after 30s, so limit to ~300 blocks max
-		// With 15min intervals, we can catch up over time
-			const maxBlocks = 200;
+		// Very conservative batch size to avoid 30s timeout
+		// Even 200 blocks seems too much, try 50 blocks per run
+		// Will catch up over many runs with 15min intervals
+			const maxBlocks = 50;
 		const endBlock = Math.min(currentBlock, startBlock + maxBlocks - 1);
 		
 		let scannedCount = 0;
