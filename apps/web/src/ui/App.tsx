@@ -153,7 +153,6 @@ export const App: React.FC = () => {
 	const ourBuilderCode = (import.meta as any).env?.VITE_BUILDER_CODE ?? 'builderscan';
 	const [account, setAccount] = React.useState<string | null>(null);
 	const [loading, setLoading] = React.useState<string | null>(null);
-	const [indexing, setIndexing] = React.useState(false);
 	const [showOnboarding, setShowOnboarding] = React.useState(() => {
 		// Show onboarding only on first visit
 		return !localStorage.getItem('builderScanOnboarded');
