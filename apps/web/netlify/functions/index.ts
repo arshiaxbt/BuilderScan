@@ -119,10 +119,10 @@ export const handler: Handler = async (event, context) => {
 			};
 		}
 		
-		// Very conservative batch size to avoid 30s timeout
-		// Even 200 blocks seems too much, try 50 blocks per run
+		// Ultra conservative batch size for cron-job.org compatibility
+		// 25 blocks should complete in ~5-10 seconds
 		// Will catch up over many runs with 15min intervals
-			const maxBlocks = 50;
+			const maxBlocks = 25;
 		const endBlock = Math.min(currentBlock, startBlock + maxBlocks - 1);
 		
 		let scannedCount = 0;
@@ -130,9 +130,9 @@ export const handler: Handler = async (event, context) => {
 		
 		// Scan blocks sequentially
 		for (let blockNum = startBlock; blockNum <= endBlock; blockNum++) {
-			// Check if we're approaching the 25s mark to avoid timeout
+			// Check if we're approaching the 20s mark to avoid timeout
 			const elapsed = Date.now() - startTime;
-			if (elapsed > 25000) { // 25 seconds
+			if (elapsed > 20000) { // 20 seconds (cron-job.org may have shorter timeout)
 				console.log(`Approaching timeout at ${elapsed}ms, stopping early at block ${blockNum}`);
 				console.log(`Total scanned: ${scannedCount}, attributions: ${attributionCount}`);
 				break;
