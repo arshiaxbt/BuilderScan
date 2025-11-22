@@ -11,13 +11,7 @@ export const handler: Handler = async (event, context) => {
 	
 	// Base.dev manifest format per https://docs.base.org/mini-apps/core-concepts/manifest
 	// accountAssociation must be signed via Base Build Preview Tool at base.dev
-	// Include empty structure initially, will be populated after signing
 	const manifest: any = {
-		accountAssociation: {
-			header: "",
-			payload: "",
-			signature: ""
-		},
 		baseBuilder: {
 			ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
 		},
@@ -34,16 +28,18 @@ export const handler: Handler = async (event, context) => {
 		}
 	};
 	
-	// Override accountAssociation if signed (via env var)
+	// Add accountAssociation only if signed (via env var)
+	// Base.dev may reject empty strings, so only include if fully signed
 	const accountAssociation = process.env.ACCOUNT_ASSOCIATION;
 	if (accountAssociation) {
 		try {
 			const parsed = JSON.parse(accountAssociation);
-			if (parsed.header && parsed.payload && parsed.signature) {
+			if (parsed.header && parsed.payload && parsed.signature && 
+			    parsed.header.length > 0 && parsed.payload.length > 0 && parsed.signature.length > 0) {
 				manifest.accountAssociation = parsed;
 			}
 		} catch {
-			// Invalid JSON, keep empty structure
+			// Invalid JSON, skip
 		}
 	}
 	
