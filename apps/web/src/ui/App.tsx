@@ -1,5 +1,6 @@
 import React from 'react';
 import useSWR from 'swr';
+import { sdk } from '@farcaster/miniapp-sdk';
 
 /**
  * Generate ERC-8021 data suffix according to the specification
@@ -155,44 +156,19 @@ export const App: React.FC = () => {
 	const [indexing, setIndexing] = React.useState(false);
 
 	// Call sdk.actions.ready() when app is loaded to dismiss splash screen
+	// Per Farcaster Mini App docs: https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display
 	React.useEffect(() => {
-		// Base Mini App SDK is injected by the Base app
-		// Try multiple ways to access the SDK
-		const callReady = () => {
-			// Try window.sdk.actions.ready() (most common)
-			if (window.sdk?.actions?.ready) {
-				try {
-					window.sdk.actions.ready();
-					return;
-				} catch (err) {
-					console.warn('Failed to call window.sdk.actions.ready():', err);
-				}
-			}
-			
-			// Try window.BaseMiniApp.sdk.actions.ready()
-			if (window.BaseMiniApp?.sdk?.actions?.ready) {
-				try {
-					window.BaseMiniApp.sdk.actions.ready();
-					return;
-				} catch (err) {
-					console.warn('Failed to call window.BaseMiniApp.sdk.actions.ready():', err);
-				}
+		// Call ready() after app is fully loaded
+		const initializeSDK = async () => {
+			try {
+				await sdk.actions.ready();
+			} catch (err) {
+				// SDK might not be available outside Farcaster (e.g., in browser)
+				console.warn('Farcaster Mini App SDK not available (running outside Farcaster):', err);
 			}
 		};
 
-		// Try immediately
-		callReady();
-
-		// Retry with increasing delays in case SDK loads asynchronously
-		const timeouts = [
-			setTimeout(callReady, 100),
-			setTimeout(callReady, 500),
-			setTimeout(callReady, 1000)
-		];
-
-		return () => {
-			timeouts.forEach(timeout => clearTimeout(timeout));
-		};
+		initializeSDK();
 	}, []);
 
 	const connect = React.useCallback(async () => {
