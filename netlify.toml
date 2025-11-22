@@ -1,0 +1,56 @@
+[build]
+  command = "cd apps/web && npm install && npm run build"
+  publish = "apps/web/dist"
+  functions = "apps/web/netlify/functions"
+
+[build.environment]
+  VITE_BUILDER_CODE = "builderscan"
+  NODE_VERSION = "18"
+
+# Redirects and rewrites
+[[redirects]]
+  from = "/.well-known/farcaster.json"
+  to = "/.netlify/functions/farcaster"
+  status = 200
+
+[[redirects]]
+  from = "/api/interactions/:code/like"
+  to = "/.netlify/functions/interactions-like"
+  status = 200
+
+[[redirects]]
+  from = "/api/leaderboard"
+  to = "/.netlify/functions/leaderboard"
+  status = 200
+
+[[redirects]]
+  from = "/api/index"
+  to = "/.netlify/functions/index"
+  status = 200
+
+# SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers
+[[headers]]
+  for = "/.well-known/*"
+  [headers.values]
+    Content-Type = "application/json"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Scheduled Functions (Cron jobs)
+# Configure in Netlify Dashboard → Functions → Scheduled Functions
+# Function: index
+# Schedule: */5 * * * * (every 5 minutes)
+# Event: scheduled
+
