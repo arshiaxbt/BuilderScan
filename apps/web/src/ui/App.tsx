@@ -741,7 +741,7 @@ export const App: React.FC = () => {
 					}}>
 						{/* X (Twitter) */}
 						<a
-							href="https://x.com/ArshiaXBT"
+							href="https://x.com/0xarshia"
 							target="_blank"
 							rel="noopener noreferrer"
 							style={{
@@ -774,7 +774,7 @@ export const App: React.FC = () => {
 
 						{/* Farcaster */}
 						<a
-							href="https://farcaster.xyz/arshiags"
+							href="https://farcaster.xyz/0xarshia.eth"
 							target="_blank"
 							rel="noopener noreferrer"
 							style={{
