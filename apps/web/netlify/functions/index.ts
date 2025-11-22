@@ -118,10 +118,10 @@ export const handler: Handler = async (event, context) => {
 			};
 		}
 		
-		// Scan blocks in larger batches for faster indexing
-		// Netlify functions have 10s timeout on free tier, 26s on pro
-		// With 15min intervals, we can scan more blocks per run
-			const maxBlocks = 1000;
+		// Scan blocks in reasonable batches to avoid 30s timeout
+		// Netlify functions timeout after 30s, so limit to ~300 blocks max
+		// With 15min intervals, we can catch up over time
+			const maxBlocks = 200;
 		const endBlock = Math.min(currentBlock, startBlock + maxBlocks - 1);
 		
 		let scannedCount = 0;
