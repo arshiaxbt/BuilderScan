@@ -90,6 +90,11 @@ declare global {
 				};
 			};
 		};
+		sdk?: {
+			actions?: {
+				ready?: () => void;
+			};
+		};
 	}
 }
 
@@ -152,13 +157,25 @@ export const App: React.FC = () => {
 	// Call sdk.actions.ready() when app is loaded to dismiss splash screen
 	React.useEffect(() => {
 		// Base Mini App SDK is injected by the Base app
-		// Try to call ready() if SDK is available
+		// Try multiple ways to access the SDK
 		const callReady = () => {
+			// Try window.sdk.actions.ready() (most common)
+			if (window.sdk?.actions?.ready) {
+				try {
+					window.sdk.actions.ready();
+					return;
+				} catch (err) {
+					console.warn('Failed to call window.sdk.actions.ready():', err);
+				}
+			}
+			
+			// Try window.BaseMiniApp.sdk.actions.ready()
 			if (window.BaseMiniApp?.sdk?.actions?.ready) {
 				try {
 					window.BaseMiniApp.sdk.actions.ready();
+					return;
 				} catch (err) {
-					console.warn('Failed to call sdk.actions.ready():', err);
+					console.warn('Failed to call window.BaseMiniApp.sdk.actions.ready():', err);
 				}
 			}
 		};
@@ -166,10 +183,16 @@ export const App: React.FC = () => {
 		// Try immediately
 		callReady();
 
-		// Also try after a short delay in case SDK loads asynchronously
-		const timeout = setTimeout(callReady, 100);
+		// Retry with increasing delays in case SDK loads asynchronously
+		const timeouts = [
+			setTimeout(callReady, 100),
+			setTimeout(callReady, 500),
+			setTimeout(callReady, 1000)
+		];
 
-		return () => clearTimeout(timeout);
+		return () => {
+			timeouts.forEach(timeout => clearTimeout(timeout));
+		};
 	}, []);
 
 	const connect = React.useCallback(async () => {
