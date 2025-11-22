@@ -142,7 +142,23 @@ export const handler: Handler = async (event, context) => {
 				if (!block?.transactions) continue;
 				
 				for (const tx of block.transactions as any[]) {
-					const codes = extractBuilderCodesFromCalldata(tx.input as string);
+					// Check multiple possible locations for ERC-8021 data
+					let codes: string[] = [];
+
+					// 1. Check transaction input data (standard ERC-8021)
+					if (tx.input && tx.input !== '0x') {
+						codes = extractBuilderCodesFromCalldata(tx.input);
+					}
+
+					// 2. If no codes found and it's a zero-value tx, check if it might be attribution-only
+					// ERC-8021 allows zero-value transactions for likes/attribution
+					if (codes.length === 0 && tx.value && tx.value.toString() === '0') {
+						codes = extractBuilderCodesFromCalldata(tx.input);
+					}
+
+					// 3. For ERC-5792 wallet_sendCalls transactions, check if dataSuffix capability was used
+					// This would require parsing the transaction receipt/logs, but for now we'll focus on input data
+
 					if (codes.length === 0) continue;
 					
 					const valueEth = ethers.formatEther(tx.value ?? 0n);
@@ -153,6 +169,8 @@ export const handler: Handler = async (event, context) => {
 					// Insert attributions
 					for (const code of codes) {
 						try {
+							console.log(`Found ERC-8021 attribution: code=${code}, tx=${tx.hash}, value=${valueEth}`);
+
 							// Auto-register code if not exists (with placeholder address)
 							const existingCode = db.getBuilderCode(code);
 							if (!existingCode) {
@@ -162,8 +180,9 @@ export const handler: Handler = async (event, context) => {
 									null,
 									JSON.stringify({ name: code, description: 'Auto-discovered code' })
 								);
+								console.log(`Auto-registered new builder code: ${code}`);
 							}
-							
+
 							db.insertAttribution(
 								tx.hash,
 								code,
@@ -172,6 +191,7 @@ export const handler: Handler = async (event, context) => {
 								feeEstimateEth
 							);
 							attributionCount++;
+							console.log(`Inserted attribution: ${attributionCount} total`);
 						} catch (err) {
 							// Skip duplicates
 							console.warn(`Failed to insert attribution for ${code}:`, err);
