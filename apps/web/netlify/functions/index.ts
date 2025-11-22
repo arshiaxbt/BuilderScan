@@ -130,6 +130,12 @@ export const handler: Handler = async (event, context) => {
 		
 		// Scan blocks sequentially
 		for (let blockNum = startBlock; blockNum <= endBlock; blockNum++) {
+			// Check if we're approaching the 25s mark to avoid timeout
+			const elapsed = Date.now() - startTime;
+			if (elapsed > 25000) { // 25 seconds
+				console.log(`Approaching timeout at ${elapsed}ms, stopping early at block ${blockNum}`);
+				break;
+			}
 			try {
 				const block = await provider.getBlock(blockNum, true);
 				if (!block?.transactions) continue;
