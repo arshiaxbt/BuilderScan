@@ -1,6 +1,8 @@
 # BuilderScan Deployment Guide
 
-Complete guide to deploy BuilderScan on Vercel, Base Mini App, and Farcaster Frame.
+Complete guide to deploy BuilderScan on Netlify, Base Mini App, and Farcaster Frame.
+
+**For detailed Netlify setup, see [NETLIFY_SETUP.md](./NETLIFY_SETUP.md)**
 
 ## 📦 Step 1: Push to GitHub
 
@@ -19,11 +21,11 @@ If you get authentication errors, use SSH or set up a Personal Access Token:
 
 ---
 
-## 🚀 Step 2: Deploy Frontend on Vercel
+## 🚀 Step 2: Deploy Frontend on Netlify
 
-### Option A: Via Vercel Dashboard (Recommended)
+### Option A: Via Netlify Dashboard (Recommended)
 
-1. **Go to [vercel.com](https://vercel.com)** and sign in with GitHub
+1. **Go to [netlify.com](https://app.netlify.com)** and sign in with GitHub
 2. **Click "Add New Project"**
 3. **Import your repository**: `arshiaxbt/BuilderScan`
 4. **Configure Project Settings**:
@@ -38,18 +40,20 @@ If you get authentication errors, use SSH or set up a Personal Access Token:
    - Add: `VITE_BUILDER_CODE` = `builderscan`
 
 6. **Deploy**: Click "Deploy"
-7. **Get your URL**: Vercel will give you a URL like `builderscan.vercel.app`
+7. **Get your URL**: Netlify will give you a URL like `builderscan.netlify.app`
 
-### Option B: Via Vercel CLI
+### Option B: Via Netlify CLI
 
 ```bash
-npm i -g vercel
-vercel login
-cd /root
-vercel
+npm i -g netlify-cli
+netlify login
+cd apps/web
+netlify deploy --prod
 ```
 
-Follow the prompts. The `vercel.json` is already configured.
+Follow the prompts. The `netlify.toml` is already configured.
+
+**See [NETLIFY_SETUP.md](./NETLIFY_SETUP.md) for detailed instructions.**
 
 ---
 
