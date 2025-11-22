@@ -1,5 +1,6 @@
 import React from 'react';
 import useSWR from 'swr';
+import { initMiniKit } from '@base.org/minikit';
 
 /**
  * Generate ERC-8021 data suffix according to the specification
@@ -141,6 +142,21 @@ export const App: React.FC = () => {
 	const [account, setAccount] = React.useState<string | null>(null);
 	const [loading, setLoading] = React.useState<string | null>(null);
 	const [indexing, setIndexing] = React.useState(false);
+	const [sdk, setSdk] = React.useState<any>(null);
+
+	// Initialize Base Mini App SDK
+	React.useEffect(() => {
+		initMiniKit()
+			.then((initializedSdk) => {
+				setSdk(initializedSdk);
+				// Call ready() to dismiss splash screen
+				initializedSdk.actions.ready();
+			})
+			.catch((err) => {
+				console.warn('Base Mini App SDK not available (running outside Base app):', err);
+				// App can still work without SDK
+			});
+	}, []);
 
 	const connect = React.useCallback(async () => {
 		if (!window.ethereum) {
