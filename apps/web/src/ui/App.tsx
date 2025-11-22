@@ -1,6 +1,5 @@
 import React from 'react';
 import useSWR from 'swr';
-import { initMiniKit } from '@base.org/minikit';
 
 /**
  * Generate ERC-8021 data suffix according to the specification
@@ -83,7 +82,14 @@ function openAppWithBuilderCode(targetUrl: string, builderCode: string) {
 declare global {
 	interface Window {
 		ethereum?: any;
-		BaseMiniApp?: any;
+		BaseMiniApp?: {
+			openURL?: (url: string) => void;
+			sdk?: {
+				actions?: {
+					ready?: () => void;
+				};
+			};
+		};
 	}
 }
 
@@ -142,20 +148,28 @@ export const App: React.FC = () => {
 	const [account, setAccount] = React.useState<string | null>(null);
 	const [loading, setLoading] = React.useState<string | null>(null);
 	const [indexing, setIndexing] = React.useState(false);
-	const [sdk, setSdk] = React.useState<any>(null);
 
-	// Initialize Base Mini App SDK
+	// Call sdk.actions.ready() when app is loaded to dismiss splash screen
 	React.useEffect(() => {
-		initMiniKit()
-			.then((initializedSdk) => {
-				setSdk(initializedSdk);
-				// Call ready() to dismiss splash screen
-				initializedSdk.actions.ready();
-			})
-			.catch((err) => {
-				console.warn('Base Mini App SDK not available (running outside Base app):', err);
-				// App can still work without SDK
-			});
+		// Base Mini App SDK is injected by the Base app
+		// Try to call ready() if SDK is available
+		const callReady = () => {
+			if (window.BaseMiniApp?.sdk?.actions?.ready) {
+				try {
+					window.BaseMiniApp.sdk.actions.ready();
+				} catch (err) {
+					console.warn('Failed to call sdk.actions.ready():', err);
+				}
+			}
+		};
+
+		// Try immediately
+		callReady();
+
+		// Also try after a short delay in case SDK loads asynchronously
+		const timeout = setTimeout(callReady, 100);
+
+		return () => clearTimeout(timeout);
 	}, []);
 
 	const connect = React.useCallback(async () => {
