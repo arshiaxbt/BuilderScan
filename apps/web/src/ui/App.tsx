@@ -460,37 +460,6 @@ export const App: React.FC = () => {
 							<small style={{ fontSize: 14, opacity: 0.7, marginTop: 8, display: 'block', marginBottom: 16 }}>
 								Leaderboard will populate as transactions with ERC-8021 attribution are discovered.
 							</small>
-							<button
-								onClick={async () => {
-									try {
-										const res = await fetch('/api/index');
-										const data = await res.json();
-										if (data.success) {
-											alert(`Indexer ran successfully!\nScanned ${data.scannedBlocks} blocks\nFound ${data.attributions} attributions\n\nRefresh the page to see results.`);
-											// Refresh data
-											window.location.reload();
-										} else {
-											alert('Indexer error: ' + (data.message || data.error || 'Unknown error'));
-										}
-									} catch (err: any) {
-										alert('Failed to trigger indexer: ' + (err.message || 'Unknown error'));
-									} finally {
-									}
-								}}
-								disabled={indexing}
-								style={{
-									background: BASE_BLUE,
-									color: 'white',
-									border: 'none',
-									borderRadius: 8,
-									padding: '12px 24px',
-									fontSize: 14,
-									fontWeight: 600,
-									cursor: indexing ? 'not-allowed' : 'pointer',
-									opacity: indexing ? 0.6 : 1,
-									transition: 'all 0.2s'
-								}}
-							>
 						</div>
 					) : (
 						<div style={{ display: 'grid', gap: 16 }}>
