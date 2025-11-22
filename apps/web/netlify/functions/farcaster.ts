@@ -11,6 +11,7 @@ export const handler: Handler = async (event, context) => {
 	
 	// Base.dev manifest format per https://docs.base.org/mini-apps/core-concepts/manifest
 	// Field order: accountAssociation, baseBuilder, miniapp
+	// NOTE: Farcaster may require different accountAssociation than Base.dev
 	const manifest: any = {
 		accountAssociation: {
 			header: "eyJmaWQiOjc2MzMsInR5cGUiOiJhdXRoIiwia2V5IjoiMHhENEYyNTdhZDFkNWZFMTcxQjJiOTk5NWMzNDQyYzA4QkE3QzQzNDBBIn0",
