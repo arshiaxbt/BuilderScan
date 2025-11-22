@@ -462,7 +462,6 @@ export const App: React.FC = () => {
 							</small>
 							<button
 								onClick={async () => {
-									setIndexing(true);
 									try {
 										const res = await fetch('/api/index');
 										const data = await res.json();
@@ -476,7 +475,6 @@ export const App: React.FC = () => {
 									} catch (err: any) {
 										alert('Failed to trigger indexer: ' + (err.message || 'Unknown error'));
 									} finally {
-										setIndexing(false);
 									}
 								}}
 								disabled={indexing}
@@ -493,8 +491,6 @@ export const App: React.FC = () => {
 									transition: 'all 0.2s'
 								}}
 							>
-								{indexing ? 'Scanning...' : 'Trigger Indexer Now'}
-							</button>
 						</div>
 					) : (
 						<div style={{ display: 'grid', gap: 16 }}>
