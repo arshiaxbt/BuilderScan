@@ -11,10 +11,8 @@ export const handler: Handler = async (event, context) => {
 	
 	// Base.dev manifest format
 	// accountAssociation must be signed via Base Build Preview Tool at base.dev
+	// Only include accountAssociation if it's been signed
 	const manifest: any = {
-		// accountAssociation will be added after signing via Base.dev Preview tool
-		// Visit: https://base.dev → Preview → Account Association
-		accountAssociation: null, // To be filled after signing
 		baseBuilder: {
 			ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
 		},
@@ -33,6 +31,16 @@ export const handler: Handler = async (event, context) => {
 			]
 		}
 	};
+	
+	// Add accountAssociation only if signed (can be added later via env var or config)
+	const accountAssociation = process.env.ACCOUNT_ASSOCIATION;
+	if (accountAssociation) {
+		try {
+			manifest.accountAssociation = JSON.parse(accountAssociation);
+		} catch {
+			// Invalid JSON, skip
+		}
+	}
 	
 	return {
 		statusCode: 200,
