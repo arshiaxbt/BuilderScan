@@ -9,32 +9,41 @@ export const handler: Handler = async (event, context) => {
 	const appUrl = `https://${host}`;
 	const canonicalDomain = host.replace(/^https?:\/\//, '');
 	
-	// Base.dev manifest format per https://docs.base.org/mini-apps/quickstart/create-new-miniapp
+	// Base.dev manifest format per https://docs.base.org/mini-apps/core-concepts/manifest
 	// accountAssociation must be signed via Base Build Preview Tool at base.dev
+	// Include empty structure initially, will be populated after signing
 	const manifest: any = {
+		accountAssociation: {
+			header: "",
+			payload: "",
+			signature: ""
+		},
 		baseBuilder: {
 			ownerAddress: "0x7B29A3b61dA6e93633CB58b66e15A457d27f02D5"
 		},
 		miniapp: {
 			version: "1",
 			name: "BuilderScan",
-			description: "ERC-8021 Builder Code Leaderboard on Base",
 			homeUrl: appUrl,
 			iconUrl: "https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW",
 			splashImageUrl: "https://thick-emerald-possum.myfilebase.com/ipfs/QmbRhHs6rrbpG7J2TrAK8JVaCaiT9SHEaPWHPBzNajWbUW",
 			splashBackgroundColor: "#000000",
+			description: "ERC-8021 Builder Code Leaderboard on Base",
 			primaryCategory: "social",
 			tags: ["leaderboard", "erc8021", "base"]
 		}
 	};
 	
-	// Add accountAssociation only if signed (can be added later via env var or config)
+	// Override accountAssociation if signed (via env var)
 	const accountAssociation = process.env.ACCOUNT_ASSOCIATION;
 	if (accountAssociation) {
 		try {
-			manifest.accountAssociation = JSON.parse(accountAssociation);
+			const parsed = JSON.parse(accountAssociation);
+			if (parsed.header && parsed.payload && parsed.signature) {
+				manifest.accountAssociation = parsed;
+			}
 		} catch {
-			// Invalid JSON, skip
+			// Invalid JSON, keep empty structure
 		}
 	}
 	
