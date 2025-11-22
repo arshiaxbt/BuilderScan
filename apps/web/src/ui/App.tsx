@@ -416,7 +416,11 @@ export const App: React.FC = () => {
 							color: 'rgba(255, 255, 255, 0.6)',
 							fontSize: 16
 						}}>
-							No data yet. Run the indexers to populate builder codes and attributions.
+							No ERC-8021 transactions found yet. The indexer scans Base blockchain every 5 minutes.
+							<br />
+							<small style={{ fontSize: 14, opacity: 0.7, marginTop: 8, display: 'block' }}>
+								Leaderboard will populate as transactions with ERC-8021 attribution are discovered.
+							</small>
 						</div>
 					) : (
 						<div style={{ display: 'grid', gap: 16 }}>

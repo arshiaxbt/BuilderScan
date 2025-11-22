@@ -41,13 +41,21 @@ function getDatabase() {
 }
 
 /**
- * Seed endpoint to populate initial data
- * Call this after deploying to initialize the database
- * GET /api/seed - Seeds demo data
+ * Seed endpoint - DISABLED in production
+ * Only works if ENABLE_SEED=true in environment
+ * This was used for demo data, but we now use real on-chain data
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'GET' && req.method !== 'POST') {
 		return res.status(405).json({ error: 'Method not allowed' });
+	}
+	
+	// Disable seed in production
+	if (process.env.ENABLE_SEED !== 'true') {
+		return res.status(403).json({ 
+			error: 'Seed endpoint disabled',
+			message: 'This app uses real on-chain data. Use /api/index to scan blockchain.'
+		});
 	}
 
 	try {

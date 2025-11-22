@@ -40,20 +40,20 @@ npm run dev
 
 This starts both the API server (port 4000) and web app (Vite dev server).
 
-4. **Seed demo data (optional)**
+4. **Index blockchain data**
 
-```bash
-npm -w apps/server run seed
-```
+The app automatically scans Base blockchain for ERC-8021 transactions:
+- **Vercel**: Cron job runs `/api/index` every 5 minutes
+- **Manual**: Call `GET /api/index` to trigger indexing
+- **Local**: Run `npm -w apps/server run index:attrib` in a separate terminal
 
-5. **Index data (production)**
+The indexer:
+- Scans Base blocks for transactions with ERC-8021 suffixes
+- Extracts builder codes from transaction calldata
+- Aggregates stats (volume, fees, transaction count)
+- Auto-registers discovered codes
 
-In a separate terminal, run:
-
-```bash
-npm -w apps/server run index:registry
-npm -w apps/server run index:attrib
-```
+**Note**: The leaderboard only shows codes with real on-chain activity. No demo data is used.
 
 ### 📦 Deployment
 

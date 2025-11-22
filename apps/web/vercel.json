@@ -6,6 +6,12 @@
   "env": {
     "VITE_BUILDER_CODE": "builderscan"
   },
+  "crons": [
+    {
+      "path": "/api/index",
+      "schedule": "*/5 * * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

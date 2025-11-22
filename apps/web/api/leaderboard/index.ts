@@ -63,6 +63,15 @@ function getDatabase() {
 		)
 	`).run();
 	
+	db.prepare(`
+		CREATE TABLE IF NOT EXISTS code_likes (
+			code TEXT PRIMARY KEY,
+			likes INTEGER NOT NULL DEFAULT 0,
+			updated_at INTEGER NOT NULL,
+			FOREIGN KEY (code) REFERENCES builder_codes(code) ON DELETE CASCADE
+		)
+	`).run();
+	
 	return db;
 }
 
@@ -75,19 +84,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const db = getDatabase();
 		const limit = req.query.limit ? Number(req.query.limit) : 50;
 		
-		// Get leaderboard with proper joins and handle missing stats
+		// Get leaderboard - only show codes with real stats from tx_attributions
 		const rows = db.prepare(`
 			SELECT 
-				c.code,
-				COALESCE(s.tx_count, 0) as txCount,
-				COALESCE(s.volume_eth, '0') as volumeEth,
-				COALESCE(s.fee_estimate_eth, '0') as feeEstimateEth,
-				COALESCE(s.likes, 0) as likes,
+				s.code,
+				s.tx_count as txCount,
+				s.volume_eth as volumeEth,
+				s.fee_estimate_eth as feeEstimateEth,
+				COALESCE(l.likes, 0) as likes,
 				c.app_url as appUrl,
 				c.owner_address as ownerAddress
-			FROM builder_codes c
-			LEFT JOIN code_stats s ON s.code = c.code
-			ORDER BY (s.fee_estimate_eth + 0.0) DESC, (s.volume_eth + 0.0) DESC, c.code ASC
+			FROM code_stats s
+			JOIN builder_codes c ON c.code = s.code
+			LEFT JOIN code_likes l ON l.code = s.code
+			WHERE s.tx_count > 0
+			ORDER BY (s.fee_estimate_eth + 0.0) DESC, (s.volume_eth + 0.0) DESC, s.code ASC
 			LIMIT ?
 		`).all(limit);
 		
