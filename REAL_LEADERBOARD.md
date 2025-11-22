@@ -17,10 +17,11 @@ The indexer serverless function:
 
 ### 2. Automatic Scanning
 
-**Vercel Cron Job**: Runs every 5 minutes
-- Configuration: `vercel.json` → `crons` array
-- Endpoint: `/api/index`
-- Scans up to 50 blocks per run (to avoid timeout)
+**Netlify Scheduled Function**: Runs every 5 minutes
+- Configuration: Netlify Dashboard → Functions → Scheduled Functions
+- Function: `index`
+- Schedule: `*/5 * * * *`
+- Scans up to 2000 blocks per run
 
 **Manual Trigger**: 
 - Call `GET /api/index` to scan immediately
@@ -65,10 +66,10 @@ Default: `https://mainnet.base.org` (public RPC)
 SQLite in `/tmp` is ephemeral:
 - ✅ Persists during warm starts (same serverless function instance)
 - ❌ Lost on cold starts (new instance)
-- ❌ Lost on Vercel deployment
+- ❌ Lost on Netlify deployment
 
 **Solutions for Production**:
-1. **Vercel Postgres** (recommended)
+1. **Netlify Postgres** (via addon, recommended)
 2. **Turso** (serverless SQLite)
 3. **PlanetScale** (MySQL)
 4. **Supabase** (PostgreSQL)
@@ -90,7 +91,7 @@ The `/api/seed` endpoint is **disabled in production**:
 
 Check indexer status:
 ```bash
-curl https://your-app.vercel.app/api/index
+curl https://your-app.netlify.app/api/index
 ```
 
 Response includes:
@@ -101,18 +102,18 @@ Response includes:
 
 ## Next Steps
 
-1. **Deploy to Vercel** - Cron will start automatically
+1. **Deploy to Netlify** - Configure scheduled function in dashboard
 2. **Set BASE_RPC_URL** - Use a production RPC endpoint
 3. **Monitor first run** - Check `/api/index` after deployment
 4. **Wait for data** - Leaderboard populates as ERC-8021 transactions are found
-5. **Upgrade database** - Consider Vercel Postgres for persistence
+5. **Upgrade database** - Consider Netlify Postgres or external database for persistence
 
 ## Troubleshooting
 
 **Empty leaderboard?**
 - Wait 5-10 minutes for first cron run
 - Manually trigger: `GET /api/index`
-- Check Vercel function logs for errors
+- Check Netlify function logs for errors
 - Verify `BASE_RPC_URL` is correct
 
 **Missing transactions?**

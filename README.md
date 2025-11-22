@@ -43,7 +43,7 @@ This starts both the API server (port 4000) and web app (Vite dev server).
 4. **Index blockchain data**
 
 The app automatically scans Base blockchain for ERC-8021 transactions:
-- **Vercel**: Cron job runs `/api/index` every 5 minutes
+- **Netlify**: Scheduled function runs `/api/index` every 5 minutes
 - **Manual**: Call `GET /api/index` to trigger indexing
 - **Local**: Run `npm -w apps/server run index:attrib` in a separate terminal
 
@@ -57,9 +57,9 @@ The indexer:
 
 ### 📦 Deployment
 
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for complete deployment instructions:
-- Deploy frontend on Vercel
-- Deploy backend on Render/Railway
+See **[NETLIFY_SETUP.md](./NETLIFY_SETUP.md)** for complete deployment instructions:
+- Deploy frontend on Netlify
+- Deploy backend on Render/Railway (optional)
 - Submit as Base Mini App
 - Create Farcaster Frame
 
@@ -90,7 +90,7 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for complete deployment instructions:
 - **Frontend**: React + Vite + TypeScript
 - **Backend**: Express + SQLite + TypeScript
 - **Blockchain**: Ethers.js, Base Chain (ID 8453)
-- **Deployment**: Vercel (frontend), Render/Railway (backend)
+- **Deployment**: Netlify (frontend), Render/Railway (backend, optional)
 
 ### 📄 License
 
