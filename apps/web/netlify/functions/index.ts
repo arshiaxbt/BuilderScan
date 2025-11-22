@@ -119,10 +119,10 @@ export const handler: Handler = async (event, context) => {
 			};
 		}
 		
-		// Ultra conservative batch size for cron-job.org compatibility
-		// 25 blocks should complete in ~5-10 seconds
+		// Very conservative batch size to ensure completion within 30s
+		// 10 blocks should complete in ~3-5 seconds
 		// Will catch up over many runs with 15min intervals
-			const maxBlocks = 25;
+			const maxBlocks = 10;
 		const endBlock = Math.min(currentBlock, startBlock + maxBlocks - 1);
 		
 		let scannedCount = 0;
